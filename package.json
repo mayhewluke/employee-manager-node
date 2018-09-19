@@ -1,0 +1,14 @@
+{
+  "name": "employee-manager-node",
+  "version": "0.0.1",
+  "description": "Simple Node.js backend for employee-manager-react-native",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: testing not configured\" && exit 1"
+  },
+  "author": {
+    "name": "Luke Mayhew",
+    "email": "luke@webuildlegends.com"
+  }
+}

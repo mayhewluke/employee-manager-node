@@ -18,5 +18,10 @@
     "array-type": [true, "array-simple"],
     "prefer-array-literal": [true, { "allow-type-parameters": true } ]
   },
-  "rulesDirectory": []
+  "rulesDirectory": [],
+  "linterOptions": {
+    "exclude": [
+      "secrets/firebaseAdminConfig.json"
+    ]
+  }
 }

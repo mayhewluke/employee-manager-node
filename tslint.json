@@ -16,7 +16,8 @@
     "object-literal-sort-keys": [true, "shorthand-first"],
     "member-ordering": false,
     "array-type": [true, "array-simple"],
-    "prefer-array-literal": [true, { "allow-type-parameters": true } ]
+    "prefer-array-literal": [true, { "allow-type-parameters": true } ],
+    "no-console": false
   },
   "rulesDirectory": [],
   "linterOptions": {

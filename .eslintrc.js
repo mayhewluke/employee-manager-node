@@ -4,7 +4,8 @@ module.exports = {
   parser: "babel-eslint",
   rules: {
     strict: 0,
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "no-console": "off"
   },
   overrides: [
     {

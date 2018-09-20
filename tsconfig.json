@@ -19,7 +19,8 @@
       "*": [
         "node_modules/*",
         "src/types/*"
-      ]
+      ],
+      "secrets/*": [ "secrets/*" ]
     },
     "lib": [
       "es2015"

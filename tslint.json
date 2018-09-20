@@ -1,0 +1,22 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended",
+    "tslint-eslint-rules",
+    "tslint-config-airbnb",
+    "tslint-config-prettier"
+  ],
+  "jsRules": {},
+  "rules": {
+    "interface-name": [false],
+    "variable-name": [true, "ban-keywords", "check-format", "allow-pascal-case"],
+    "jsx-boolean-value": false,
+    "no-unused-expression": true,
+    "no-unused-variable": true,
+    "object-literal-sort-keys": [true, "shorthand-first"],
+    "member-ordering": false,
+    "array-type": [true, "array-simple"],
+    "prefer-array-literal": [true, { "allow-type-parameters": true } ]
+  },
+  "rulesDirectory": []
+}

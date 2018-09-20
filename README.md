@@ -4,9 +4,9 @@ only.*
 
 # Usage
 
-Build the JS files with `yarn build`. Run the server with `yarn start`.
+Run the server with `yarn start`. This uses `ts-node` to run the TypeScript
+entrypoint, and `nodemon` to restart the server whenever TypeScript files in
+`src/` are changed.
 
-Alternatively, have it automatically restart the server whenever source files
-are changed by using `yarn start-watch`. If running in this mode, use `yarn
-build --watch` (or `yarn build -w`) to also have the JS files rebuilt when the
-source files are changed, or else the server can't pick up the new changes.
+Or run the server in compiled JS via `yarn prod` and `yarn build --watch` (or
+just build the JS with `yarn build`).

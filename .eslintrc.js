@@ -8,6 +8,13 @@ module.exports = {
   },
   overrides: [
     {
+      files: ["test/**"],
+      rules: {
+        "import/first": "off",
+        "global-require": "off"
+      }
+    },
+    {
       files: ["**/*.ts", "**/*.tsx"],
       parser: "typescript-eslint-parser",
       rules: {

@@ -1,8 +1,12 @@
-import express from "express";
+import http from "http";
 
-const app = express();
+import expressApp from "express-app";
+import wsserver from "wsserver";
+
 const port = process.env.PORT || 3000;
+const server = http.createServer(expressApp);
 
-app.get("/", (_, res) => res.send("Hello World!"));
+server.listen(port, () => console.log(`Example app listening on port ${port}`));
+wsserver(server);
 
-app.listen(port, () => console.log(`Example app listening on port ${port}`));
+export default server;

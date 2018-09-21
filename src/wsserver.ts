@@ -6,16 +6,27 @@ export default (
 ) => {
   const wss = new WebSocket.Server({ server }, callback);
   return wss.on("connection", (ws, _) => {
-    ws.on("message", message => {
-      if (typeof message !== "string") {
+    ws.on("message", data => {
+      if (typeof data !== "string") {
         ws.send(
           JSON.stringify({
             event: "error",
-            message: `Messages must be strings, received ${typeof message}`
+            message: `Messages must be strings, received ${typeof data}`
           })
         );
       } else {
-        ws.send(message);
+        try {
+          JSON.parse(data);
+          ws.send(data);
+        } catch (e) {
+          ws.send(
+            JSON.stringify({
+              event: "error",
+              message: `Could not parse the message. Make sure it is valid JSON.
+                Received: ${data}`
+            })
+          );
+        }
       }
     });
 

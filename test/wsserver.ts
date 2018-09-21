@@ -46,7 +46,7 @@ afterAll(done => {
 
 describe("websockets", () => {
   it("echoes back sent messages", done => {
-    const payload = "Hello World!";
+    const payload = JSON.stringify({ hello: "world" });
 
     client.on("message", data => {
       expect(data).toEqual(payload);
@@ -56,18 +56,35 @@ describe("websockets", () => {
     client.send(payload);
   });
 
-  it("responds with an error message if the payload not a string", done => {
-    const payload = new ArrayBuffer(10);
+  describe("message validation", () => {
+    it("responds with an error message if the payload not a string", done => {
+      const payload = new ArrayBuffer(10);
 
-    client.on("message", data => {
-      expect(typeof data).toBe("string");
-      if (typeof data === "string") {
-        const response = JSON.parse(data);
-        expect(response.event).toBe("error");
-        done();
-      }
+      client.on("message", data => {
+        expect(typeof data).toBe("string");
+        if (typeof data === "string") {
+          const response = JSON.parse(data);
+          expect(response.event).toBe("error");
+          done();
+        }
+      });
+
+      client.send(payload);
     });
 
-    client.send(payload);
+    it("responds with an error if the payload is not valid JSON", done => {
+      const payload = "}{lk}{[]a12}";
+
+      client.on("message", data => {
+        expect(typeof data).toBe("string");
+        if (typeof data === "string") {
+          const response = JSON.parse(data);
+          expect(response.event).toBe("error");
+          done();
+        }
+      });
+
+      client.send(payload);
+    });
   });
 });

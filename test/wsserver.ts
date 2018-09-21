@@ -55,4 +55,19 @@ describe("websockets", () => {
 
     client.send(payload);
   });
+
+  it("responds with an error message if the payload not a string", done => {
+    const payload = new ArrayBuffer(10);
+
+    client.on("message", data => {
+      expect(typeof data).toBe("string");
+      if (typeof data === "string") {
+        const response = JSON.parse(data);
+        expect(response.event).toBe("error");
+        done();
+      }
+    });
+
+    client.send(payload);
+  });
 });

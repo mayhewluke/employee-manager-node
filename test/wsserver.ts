@@ -3,6 +3,7 @@ import { AddressInfo } from "net"; // eslint-disable-line import/newline-after-i
 import WebSocket = require("ws");
 
 import firebaseAdmin from "firebaseAdmin";
+import { creators, MessageTypes } from "websocket/messages";
 import wsserver from "wsserver";
 
 let server: http.Server;
@@ -46,17 +47,6 @@ afterAll(done => {
 });
 
 describe("websockets", () => {
-  it("echoes back sent messages", done => {
-    const payload = JSON.stringify({ hello: "world" });
-
-    client.on("message", data => {
-      expect(data).toEqual(payload);
-      done();
-    });
-
-    client.send(payload);
-  });
-
   describe("message validation", () => {
     const payload = "}{lk}{[]a12}";
     it("responds with an error if the payload is not valid JSON", done => {
@@ -64,7 +54,7 @@ describe("websockets", () => {
         expect(typeof data).toBe("string");
         if (typeof data === "string") {
           const response = JSON.parse(data);
-          expect(response.event).toBe("error");
+          expect(response.type).toBe(MessageTypes.Error);
           done();
         }
       });
@@ -81,7 +71,7 @@ describe("websockets", () => {
           const response = JSON.parse(data);
           /* eslint-disable-next-line operator-assignment */
           count = count + 1;
-          expect(response.event).toBe("error");
+          expect(response.type).toBe(MessageTypes.Error);
           if (count === 2) done();
         }
       });
@@ -94,6 +84,8 @@ describe("websockets", () => {
   describe("authentication", () => {
     let originalAuth: any;
     const mockVerify = jest.fn(() => Promise.resolve());
+    const token = "1234";
+    const payload = JSON.stringify(creators.authenticate(token));
     beforeAll(() => {
       // `auth` is a getter so it can't be automocked or assigned to with `=`
       originalAuth = firebaseAdmin.auth;
@@ -110,9 +102,6 @@ describe("websockets", () => {
     });
 
     it("checks the client's auth token against firebase", done => {
-      const token = "1234";
-      const payload = JSON.stringify({ token, event: "authenticate" });
-
       client.on("message", () => {
         expect(mockVerify).toHaveBeenCalledTimes(1);
         expect(mockVerify).toHaveBeenCalledWith(token);
@@ -125,39 +114,37 @@ describe("websockets", () => {
     describe("when successful", () => {
       it("responds with an authSuccess message", done => {
         const returnToken = { uid: "uid1" };
-        const message = { event: "authenticate", token: "" };
         mockVerify.mockImplementation(() => Promise.resolve(returnToken));
 
         client.on("message", data => {
           expect(typeof data).toBe("string");
           if (typeof data === "string") {
             const response = JSON.parse(data);
-            expect(response.event).toBe("authSuccess");
+            expect(response.type).toBe(MessageTypes.AuthSuccess);
             done();
           }
         });
 
-        client.send(JSON.stringify(message));
+        client.send(payload);
       });
     });
 
     describe("when unsuccessful", () => {
       it("responds with the error from firebase", done => {
         const error = new Error("Something went wrong!");
-        const message = { event: "authenticate", token: "" };
         mockVerify.mockImplementation(() => Promise.reject(error));
 
         client.on("message", data => {
           expect(typeof data).toBe("string");
           if (typeof data === "string") {
             const response = JSON.parse(data);
-            expect(response.event).toBe("error");
-            expect(response.message).toEqual(error.message);
+            expect(response.type).toBe(MessageTypes.Error);
+            expect(response.payload.message).toEqual(error.message);
             done();
           }
         });
 
-        client.send(JSON.stringify(message));
+        client.send(payload);
       });
     });
   });

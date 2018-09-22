@@ -1,7 +1,7 @@
 import { map } from "rxjs/operators";
 
 import { wsMessageObservable } from "websocket";
-import { authenticate, echoIfUnmatched } from "websocket/handlers";
+import { authenticate, forwardErrors } from "websocket/handlers";
 import {
   catchWithContext,
   fanoutAndMerge,
@@ -19,7 +19,7 @@ export default (
     wsMessageObservable(ws)
       .pipe(
         parseJSON,
-        fanoutAndMerge(echoIfUnmatched, authenticate),
+        fanoutAndMerge(forwardErrors, authenticate),
         catchWithContext("Uncaught error in websocket pipeline"),
         map(x => JSON.stringify(x))
       )

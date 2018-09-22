@@ -46,6 +46,7 @@
   "dependencies": {
     "express": "^4.16.3",
     "firebase-admin": "^6.0.0",
+    "rxjs": "^6.3.2",
     "ws": "^6.0.0"
   }
 }

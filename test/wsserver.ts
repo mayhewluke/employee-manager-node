@@ -58,9 +58,8 @@ describe("websockets", () => {
   });
 
   describe("message validation", () => {
-    it("responds with an error message if the payload not a string", done => {
-      const payload = new ArrayBuffer(10);
-
+    const payload = "}{lk}{[]a12}";
+    it("responds with an error if the payload is not valid JSON", done => {
       client.on("message", data => {
         expect(typeof data).toBe("string");
         if (typeof data === "string") {
@@ -73,18 +72,21 @@ describe("websockets", () => {
       client.send(payload);
     });
 
-    it("responds with an error if the payload is not valid JSON", done => {
-      const payload = "}{lk}{[]a12}";
+    it("keeps working even after an error", done => {
+      let count = 0;
 
       client.on("message", data => {
         expect(typeof data).toBe("string");
         if (typeof data === "string") {
           const response = JSON.parse(data);
+          /* eslint-disable-next-line operator-assignment */
+          count = count + 1;
           expect(response.event).toBe("error");
-          done();
+          if (count === 2) done();
         }
       });
 
+      client.send(payload);
       client.send(payload);
     });
   });

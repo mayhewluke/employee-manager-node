@@ -1,7 +1,13 @@
-import { map } from "rxjs/operators";
+import { BehaviorSubject } from "rxjs";
+import { map, tap } from "rxjs/operators";
 
 import { wsMessageObservable } from "websocket";
-import { authenticate, forwardErrors } from "websocket/handlers";
+import {
+  authenticate,
+  checkAuthStatus,
+  forwardErrors
+} from "websocket/handlers";
+import { MessageTypes } from "websocket/messages";
 import {
   catchWithContext,
   fanoutAndMerge,
@@ -16,10 +22,18 @@ export default (
 ) => {
   const wss = new WebSocket.Server({ server }, callback);
   return wss.on("connection", (ws, _) => {
+    const uid = new BehaviorSubject<null | string>(null);
     wsMessageObservable(ws)
       .pipe(
         parseJSON,
-        fanoutAndMerge(forwardErrors, authenticate),
+        fanoutAndMerge(uid, forwardErrors, authenticate, checkAuthStatus),
+        // TODO find a better way to have handlers able to affect things on the
+        // server, not just the client
+        tap(message => {
+          if (message.type === MessageTypes.AuthSuccess) {
+            uid.next(message.payload);
+          }
+        }),
         catchWithContext("Uncaught error in websocket pipeline"),
         map(x => JSON.stringify(x))
       )

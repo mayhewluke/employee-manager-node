@@ -1,4 +1,4 @@
-import { Observable, of, pipe, UnaryFunction } from "rxjs";
+import { of, OperatorFunction } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
 
 import { isMessage, Message } from "websocket/messages";
@@ -13,16 +13,11 @@ export const requireMessageType = (val: any) => {
   throw new Error(`Messages must have a \`type\``);
 };
 
-const parseJSON: UnaryFunction<
-  Observable<WebSocket.Data>,
-  Observable<Message>
-> = pipe(
-  mergeMap(message =>
-    of(message).pipe(
-      map(x => JSON.parse(x.toString())),
-      map(requireMessageType),
-      catchWithContext(`Could not parse message as valid JSON: ${message}`)
-    )
+const parseJSON: OperatorFunction<WebSocket.Data, Message> = mergeMap(message =>
+  of(message).pipe(
+    map(x => JSON.parse(x.toString())),
+    map(requireMessageType),
+    catchWithContext(`Could not parse message as valid JSON: ${message}`)
   )
 );
 

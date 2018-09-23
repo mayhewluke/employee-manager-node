@@ -17,7 +17,8 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "*": ["src/*"],
-      "secrets/*": [ "secrets/*" ]
+      "secrets/*": [ "secrets/*" ],
+      "test/*": [ "test/*" ]
     },
     "lib": [
       "es2015"

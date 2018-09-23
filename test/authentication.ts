@@ -10,7 +10,7 @@ let client: WebSocket;
 let originalVerify: any;
 const mockVerify = jest.fn();
 
-useMongo();
+useMongo("authentication");
 const getClient = useWebsocketServer();
 
 beforeEach(() => {

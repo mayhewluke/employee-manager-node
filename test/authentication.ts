@@ -36,8 +36,6 @@ beforeAll(done => {
 
 // Set up the WebSocket client
 beforeEach(done => {
-  jest.resetAllMocks();
-  jest.restoreAllMocks();
   if (typeof serverAddress === "string") {
     throw new Error("serverAddress was a pipe or UNIX domain socket");
   }

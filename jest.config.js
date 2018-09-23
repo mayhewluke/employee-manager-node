@@ -6,5 +6,8 @@ module.exports = {
     "^secrets/(.*)": "<rootDir>/secrets/$1"
   },
   moduleDirectories: ["src", "node_modules"],
-  watchPathIgnorePatterns: ["<rootDir>/dist"]
+  watchPathIgnorePatterns: ["<rootDir>/dist"],
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true
 };

@@ -7,6 +7,8 @@ import firebaseAdmin from "firebaseAdmin";
 import { creators, MessageTypes } from "websocket/messages";
 
 let client: WebSocket;
+let originalVerify: any;
+const mockVerify = jest.fn();
 
 useMongo();
 const getClient = useWebsocketServer();
@@ -15,27 +17,21 @@ beforeEach(() => {
   client = getClient();
 });
 
+// Manually mock the verifyIdToken method
+beforeAll(() => {
+  const auth = firebaseAdmin.auth();
+  originalVerify = auth.verifyIdToken;
+  auth.verifyIdToken = mockVerify;
+});
+afterAll(() => {
+  firebaseAdmin.auth().verifyIdToken = originalVerify;
+});
+
 describe("authentication", () => {
-  let originalAuth: any;
-  let mockVerify: any;
   const token = "1234";
   const payload = JSON.stringify(creators.authenticate(token));
   beforeEach(() => {
-    mockVerify = jest.fn(() => Promise.resolve());
-    // `auth` is a getter so it can't be automocked or assigned to with `=`
-    originalAuth = firebaseAdmin.auth;
-    Object.defineProperty(firebaseAdmin, "auth", {
-      configurable: true,
-      value: jest.fn(() => ({
-        verifyIdToken: mockVerify
-      }))
-    });
-  });
-  afterEach(() => {
-    Object.defineProperty(firebaseAdmin, "auth", {
-      configurable: true,
-      value: originalAuth
-    });
+    mockVerify.mockImplementation(() => Promise.resolve());
   });
 
   it("checks the client's auth token against firebase", done => {

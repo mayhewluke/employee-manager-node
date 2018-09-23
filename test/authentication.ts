@@ -1,7 +1,6 @@
-import mongoose from "mongoose"; // eslint-disable-line import/newline-after-import
 import WebSocket = require("ws");
 
-import { useWebsocketServer } from "test/helpers";
+import { useMongo, useWebsocketServer } from "test/helpers";
 
 import { UserModel } from "authentication/User";
 import firebaseAdmin from "firebaseAdmin";
@@ -9,19 +8,7 @@ import { creators, MessageTypes } from "websocket/messages";
 
 let client: WebSocket;
 
-beforeAll(async () => {
-  mongoose.Promise = global.Promise;
-  await mongoose.connect("mongodb://127.0.0.1/wombat");
-});
-
-beforeEach(async () => {
-  await mongoose.connection.dropDatabase();
-});
-
-afterAll(async () => {
-  await mongoose.disconnect();
-});
-
+useMongo();
 const getClient = useWebsocketServer();
 
 beforeEach(() => {

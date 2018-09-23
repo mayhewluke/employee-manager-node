@@ -2,8 +2,7 @@ import http from "http";
 import { AddressInfo } from "net"; // eslint-disable-line import/newline-after-import
 import WebSocket = require("ws");
 
-import firebaseAdmin from "firebaseAdmin";
-import { creators, MessageTypes } from "websocket/messages";
+import { MessageTypes } from "websocket/messages";
 import wsserver from "wsserver";
 
 let server: http.Server;
@@ -78,74 +77,6 @@ describe("websockets", () => {
 
       client.send(payload);
       client.send(payload);
-    });
-  });
-
-  describe("authentication", () => {
-    let originalAuth: any;
-    const mockVerify = jest.fn(() => Promise.resolve());
-    const token = "1234";
-    const payload = JSON.stringify(creators.authenticate(token));
-    beforeAll(() => {
-      // `auth` is a getter so it can't be automocked or assigned to with `=`
-      originalAuth = firebaseAdmin.auth;
-      Object.defineProperty(firebaseAdmin, "auth", {
-        value: jest.fn(() => ({
-          verifyIdToken: mockVerify
-        }))
-      });
-    });
-    afterAll(() => {
-      Object.defineProperty(firebaseAdmin, "auth", {
-        value: originalAuth
-      });
-    });
-
-    it("checks the client's auth token against firebase", done => {
-      client.on("message", () => {
-        expect(mockVerify).toHaveBeenCalledTimes(1);
-        expect(mockVerify).toHaveBeenCalledWith(token);
-        done();
-      });
-
-      client.send(payload);
-    });
-
-    describe("when successful", () => {
-      it("responds with an authSuccess message", done => {
-        const returnToken = { uid: "uid1" };
-        mockVerify.mockImplementation(() => Promise.resolve(returnToken));
-
-        client.on("message", data => {
-          expect(typeof data).toBe("string");
-          if (typeof data === "string") {
-            const response = JSON.parse(data);
-            expect(response.type).toBe(MessageTypes.AuthSuccess);
-            done();
-          }
-        });
-
-        client.send(payload);
-      });
-    });
-
-    describe("when unsuccessful", () => {
-      it("responds with the error from firebase", done => {
-        const error = new Error("Something went wrong!");
-        mockVerify.mockImplementation(() => Promise.reject(error));
-
-        client.on("message", data => {
-          expect(typeof data).toBe("string");
-          if (typeof data === "string") {
-            const response = JSON.parse(data);
-            expect(response.type).toBe(MessageTypes.Error);
-            expect(response.payload.message).toEqual(error.message);
-            done();
-          }
-        });
-
-        client.send(payload);
-      });
     });
   });
 });

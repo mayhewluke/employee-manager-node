@@ -2,8 +2,7 @@ import WebSocket = require("ws");
 
 import { useMongo, useWebsocketServer } from "test/helpers";
 
-import { UserModel } from "authentication/User";
-import { Employee } from "Employee/model";
+import { Employee, EmployeeModel } from "Employee";
 import firebaseAdmin from "firebaseAdmin";
 import { creators, MessageTypes } from "websocket/messages";
 
@@ -33,12 +32,14 @@ const employees: Employee[] = [
   {
     employeeName: "Taylor",
     phone: "555-5555",
-    shift: "Monday"
+    shift: "Monday",
+    userUid: uid
   },
   {
     employeeName: "Casey",
     phone: "123-456-7890",
-    shift: "Friday"
+    shift: "Friday",
+    userUid: uid
   }
 ];
 const msg = JSON.stringify(creators.listEmployees());
@@ -46,7 +47,7 @@ const msg = JSON.stringify(creators.listEmployees());
 describe("when logged in", () => {
   beforeEach(async done => {
     mockVerify.mockImplementation(() => Promise.resolve({ uid }));
-    await UserModel.create({ employees, _id: uid });
+    await EmployeeModel.create(employees);
     client.on("message", (data: string) => {
       const response = JSON.parse(data);
       if (response.type === MessageTypes.AuthSuccess) done();
@@ -58,8 +59,9 @@ describe("when logged in", () => {
     client.on("message", async (data: string) => {
       const { type, payload } = JSON.parse(data);
       expect(type).toEqual(MessageTypes.EmployeesList);
-      expect(payload[0]).toEqual(expect.objectContaining(employees[0]));
-      expect(payload[1]).toEqual(expect.objectContaining(employees[1]));
+      expect(payload).toContainEqual(expect.objectContaining(employees[0]));
+      expect(payload).toContainEqual(expect.objectContaining(employees[1]));
+      expect(payload.length).toBe(2);
       done();
     });
 
@@ -67,12 +69,13 @@ describe("when logged in", () => {
   });
 
   it("does not return employees from any other users", async done => {
-    const otherEmployee = {
+    const otherEmployee: Employee = {
       employeeName: "foo",
       phone: "999-8888",
-      shift: "Sunday"
+      shift: "Sunday",
+      userUid: "otherUserUid"
     };
-    await UserModel.create({ _id: "otheruid", employees: [otherEmployee] });
+    await EmployeeModel.create(otherEmployee);
 
     client.on("message", (data: string) => {
       const { type, payload } = JSON.parse(data);

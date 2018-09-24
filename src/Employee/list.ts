@@ -2,7 +2,7 @@ import { Document } from "mongoose";
 import { BehaviorSubject, bindNodeCallback, Observable } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
-import { User, UserModel } from "authentication/User";
+import { Employee, EmployeeModel } from "Employee";
 import { creators, Message, MessageTypes } from "websocket/messages";
 import { catchWithContext, ofType } from "websocket/operators";
 
@@ -16,11 +16,12 @@ const list = (
       if (uid.value === null) {
         throw new Error("Must be authenticated to create employees");
       }
-      return bindNodeCallback<string, User & Document>(UserModel.findById.bind(
-        UserModel
-      ) as (id: string) => User & Document)(uid.value);
+      return bindNodeCallback<Partial<Employee>, Array<Employee & Document>>(
+        // eslint-disable-next-line no-restricted-globals
+        EmployeeModel.find.bind(EmployeeModel) as typeof EmployeeModel.find
+      )({ userUid: uid.value });
     }),
-    map(user => creators.employeesList(user.employees)),
+    map(employees => creators.employeesList(employees)),
     catchWithContext("Failed to find the employees")
   );
 

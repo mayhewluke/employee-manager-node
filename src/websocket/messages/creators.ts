@@ -1,4 +1,4 @@
-import { Employee } from "Employee/model";
+import { ClientEmployee, Employee } from "Employee/model";
 
 import { createMessage } from "./core";
 import { MessageTypes } from "./types";
@@ -10,7 +10,7 @@ const creators = {
   authenticate: (token: string) =>
     createMessage(MessageTypes.Authenticate, { token }),
   checkAuthStatus: () => createMessage(MessageTypes.CheckAuthStatus),
-  createEmployee: (employee: Employee) =>
+  createEmployee: (employee: ClientEmployee) =>
     createMessage(MessageTypes.CreateEmployee, employee),
   createEmployeeSuccess: () =>
     createMessage(MessageTypes.CreateEmployeeSuccess),

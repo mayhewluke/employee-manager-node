@@ -2,7 +2,6 @@ import WebSocket = require("ws");
 
 import { useMongo, useWebsocketServer } from "test/helpers";
 
-import { UserModel } from "authentication/User";
 import firebaseAdmin from "firebaseAdmin";
 import { creators, MessageTypes } from "websocket/messages";
 
@@ -63,72 +62,6 @@ describe("authentication", () => {
 
       client.send(payload);
     });
-
-    describe("if the user does not exist", () => {
-      it("creates a user", async done => {
-        expect(await UserModel.findById(uid)).toBeNull();
-
-        client.on("message", async () => {
-          expect(await UserModel.findById(uid)).toEqual(expect.anything());
-          done();
-        });
-
-        client.send(payload);
-      });
-
-      it("sends an error if the creation fails", async done => {
-        const error = new Error("Something went wrong!");
-        // Force an error via mocking - otherwise the only option is to pass
-        // parameters which are valid to the API but invalid to mongo, which
-        // should not be possible due to validations etc.
-        // TODO unfortunately this couples the test very tightly - find a better way
-        jest
-          .spyOn(UserModel, "updateOne")
-          .mockImplementation((...args) => args.slice(-1)[0](error));
-
-        client.on("message", data => {
-          expect(typeof data).toBe("string");
-          if (typeof data === "string") {
-            const response = JSON.parse(data);
-            expect(response.type).toBe(MessageTypes.Error);
-            expect(response.payload.message).toEqual(error.message);
-            done();
-          }
-        });
-
-        client.send(payload);
-      });
-    });
-
-    describe("if the user exists", () => {
-      let userCountBefore: number;
-      beforeEach(async () => {
-        await UserModel.create({ _id: uid });
-        userCountBefore = await UserModel.countDocuments({});
-      });
-
-      it("does not create a user", async done => {
-        client.on("message", async () => {
-          expect(await UserModel.countDocuments({})).toEqual(userCountBefore);
-          done();
-        });
-
-        client.send(payload);
-      });
-
-      it("does not send an error", done => {
-        client.on("message", data => {
-          expect(typeof data).toBe("string");
-          if (typeof data === "string") {
-            const response = JSON.parse(data);
-            expect(response.type).not.toBe(MessageTypes.Error);
-            done();
-          }
-        });
-
-        client.send(payload);
-      });
-    });
   });
 
   describe("when unsuccessful", () => {
@@ -146,17 +79,6 @@ describe("authentication", () => {
           expect(response.payload.message).toEqual(error.message);
           done();
         }
-      });
-
-      client.send(payload);
-    });
-
-    it("does not create a user", async done => {
-      const userCountBefore = await UserModel.countDocuments({});
-
-      client.on("message", async () => {
-        expect(await UserModel.countDocuments({})).toEqual(userCountBefore);
-        done();
       });
 
       client.send(payload);

@@ -2,8 +2,7 @@ import WebSocket = require("ws");
 
 import { useMongo, useWebsocketServer } from "test/helpers";
 
-import { UserModel } from "authentication/User";
-import { Employee } from "Employee/model";
+import { ClientEmployee, Employee, EmployeeModel } from "Employee";
 import firebaseAdmin from "firebaseAdmin";
 import { creators, MessageTypes } from "websocket/messages";
 
@@ -33,11 +32,12 @@ describe("when logged in", () => {
   const existingEmployee: Employee = {
     employeeName: "Taylor",
     phone: "555-5555",
-    shift: "Monday"
+    shift: "Monday",
+    userUid: uid
   };
   beforeEach(async done => {
     mockVerify.mockImplementation(() => Promise.resolve({ uid }));
-    await UserModel.create({ _id: uid, employees: [existingEmployee] });
+    await EmployeeModel.create(existingEmployee);
     client.on("message", (data: string) => {
       const response = JSON.parse(data);
       if (response.type === MessageTypes.AuthSuccess) done();
@@ -46,7 +46,7 @@ describe("when logged in", () => {
   });
 
   describe("with a valid employee", () => {
-    const employee: Employee = {
+    const employee: ClientEmployee = {
       employeeName: "Casey",
       phone: "123-456-7890",
       shift: "Friday"
@@ -55,7 +55,7 @@ describe("when logged in", () => {
 
     it("adds the employee to the current user", done => {
       client.on("message", async () => {
-        const [first, second] = (await UserModel.findById(uid))!.employees;
+        const [first, second] = await EmployeeModel.find({ userUid: uid });
         expect(first).toEqual(expect.objectContaining(existingEmployee));
         expect(second).toEqual(expect.objectContaining(employee));
         done();
@@ -83,11 +83,13 @@ describe("when logged in", () => {
 
     it("sends out the updated employees list", done => {
       client.on("message", (data: string) => {
-        const response = JSON.parse(data);
-        if (response.type === MessageTypes.EmployeesList) {
-          const [first, second] = response.payload;
-          expect(first).toEqual(expect.objectContaining(existingEmployee));
-          expect(second).toEqual(expect.objectContaining(employee));
+        const { type, payload } = JSON.parse(data);
+        if (type === MessageTypes.EmployeesList) {
+          expect(payload).toContainEqual(
+            expect.objectContaining(existingEmployee)
+          );
+          expect(payload).toContainEqual(expect.objectContaining(employee));
+          expect(payload.length).toBe(2);
           done();
         }
       });
@@ -111,11 +113,11 @@ describe("when logged in", () => {
     });
 
     it("does not change the employees", async done => {
-      // Jest sees them as unequal even when they are identical for some reason.
-      // Serializing them solves this.
-      const getEmployees = async () =>
-        JSON.stringify((await UserModel.findById(uid))!.employees);
+      const getEmployees = () => EmployeeModel.find({ userUid: uid });
       const originalEmployees = await getEmployees();
+      expect(originalEmployees).toEqual([
+        expect.objectContaining(existingEmployee)
+      ]);
 
       client.on("message", async () => {
         expect(await getEmployees()).toEqual(originalEmployees);
@@ -128,7 +130,7 @@ describe("when logged in", () => {
 });
 
 describe("when not logged in", () => {
-  const employee: Employee = {
+  const employee: ClientEmployee = {
     employeeName: "Casey",
     phone: "123-456-7890",
     shift: "Friday"

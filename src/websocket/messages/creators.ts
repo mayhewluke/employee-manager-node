@@ -17,7 +17,8 @@ const creators = {
   employeesList: (employees: Employee[]) =>
     createMessage(MessageTypes.EmployeesList, employees),
   error: (context: string, message: string, stack?: string) =>
-    createMessage(MessageTypes.Error, { context, message, stack })
+    createMessage(MessageTypes.Error, { context, message, stack }),
+  listEmployees: () => createMessage(MessageTypes.ListEmployees)
 };
 
 export default creators;

@@ -9,7 +9,8 @@ export enum MessageTypes {
   CheckAuthStatus = "CheckAuthStatus",
   CreateEmployee = "CreateEmployee",
   CreateEmployeeSuccess = "CreateEmployeeSuccess",
-  EmployeesList = "EmployeesList"
+  EmployeesList = "EmployeesList",
+  ListEmployees = "ListEmployees"
 }
 
 export type Message = MessagesUnion<typeof creators>;

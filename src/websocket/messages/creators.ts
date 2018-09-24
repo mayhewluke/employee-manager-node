@@ -1,3 +1,5 @@
+import { Document } from "mongoose";
+
 import { ClientEmployee, Employee } from "Employee/model";
 
 import { createMessage } from "./core";
@@ -18,7 +20,10 @@ const creators = {
     createMessage(MessageTypes.EmployeesList, employees),
   error: (context: string, message: string, stack?: string) =>
     createMessage(MessageTypes.Error, { context, message, stack }),
-  listEmployees: () => createMessage(MessageTypes.ListEmployees)
+  listEmployees: () => createMessage(MessageTypes.ListEmployees),
+  updateEmployee: (update: Partial<ClientEmployee & Document>) =>
+    createMessage(MessageTypes.UpdateEmployee, update),
+  updateEmployeeSuccess: () => createMessage(MessageTypes.UpdateEmployeeSuccess)
 };
 
 export default creators;

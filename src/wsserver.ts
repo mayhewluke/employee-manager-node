@@ -14,7 +14,7 @@ import {
   parseJSON
 } from "websocket/operators";
 
-import { createEmployee, listEmployees } from "Employee";
+import { createEmployee, listEmployees, updateEmployee } from "Employee";
 
 import WebSocket = require("ws");
 
@@ -34,7 +34,8 @@ export default (
           authenticate,
           checkAuthStatus,
           createEmployee,
-          listEmployees
+          listEmployees,
+          updateEmployee
         ),
         // TODO find a better way to have handlers able to affect things on the
         // server, not just the client

@@ -14,6 +14,8 @@ import {
   parseJSON
 } from "websocket/operators";
 
+import { createEmployee } from "Employee";
+
 import WebSocket = require("ws");
 
 export default (
@@ -26,7 +28,13 @@ export default (
     wsMessageObservable(ws)
       .pipe(
         parseJSON,
-        fanoutAndMerge(uid, forwardErrors, authenticate, checkAuthStatus),
+        fanoutAndMerge(
+          uid,
+          forwardErrors,
+          authenticate,
+          checkAuthStatus,
+          createEmployee
+        ),
         // TODO find a better way to have handlers able to affect things on the
         // server, not just the client
         tap(message => {

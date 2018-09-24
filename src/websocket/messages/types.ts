@@ -9,6 +9,8 @@ export enum MessageTypes {
   CheckAuthStatus = "CheckAuthStatus",
   CreateEmployee = "CreateEmployee",
   CreateEmployeeSuccess = "CreateEmployeeSuccess",
+  DeleteEmployee = "DeleteEmployee",
+  DeleteEmployeeSuccess = "DeleteEmployeeSuccess",
   EmployeesList = "EmployeesList",
   ListEmployees = "ListEmployees",
   UpdateEmployee = "UpdateEmployee",

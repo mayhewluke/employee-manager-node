@@ -14,7 +14,12 @@ import {
   parseJSON
 } from "websocket/operators";
 
-import { createEmployee, listEmployees, updateEmployee } from "Employee";
+import {
+  createEmployee,
+  deleteEmployee,
+  listEmployees,
+  updateEmployee
+} from "Employee";
 
 import WebSocket = require("ws");
 
@@ -34,6 +39,7 @@ export default (
           authenticate,
           checkAuthStatus,
           createEmployee,
+          deleteEmployee,
           listEmployees,
           updateEmployee
         ),

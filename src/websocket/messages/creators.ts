@@ -16,6 +16,10 @@ const creators = {
     createMessage(MessageTypes.CreateEmployee, employee),
   createEmployeeSuccess: () =>
     createMessage(MessageTypes.CreateEmployeeSuccess),
+  deleteEmployee: (id: string) =>
+    createMessage(MessageTypes.DeleteEmployee, id),
+  deleteEmployeeSuccess: () =>
+    createMessage(MessageTypes.DeleteEmployeeSuccess),
   employeesList: (employees: Employee[]) =>
     createMessage(MessageTypes.EmployeesList, employees),
   error: (context: string, message: string, stack?: string) =>
